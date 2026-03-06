@@ -3,10 +3,42 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T: PartialOrd>(array: &mut [T]) {
+    if array.len() < 2 {
+        return;
+    }
+    fn partition<T: PartialOrd>(array: &mut [T]) -> usize {
+        if array.len() < 2 {
+            return 0;
+        }
+        let mut left = 0;
+        let mut right = array.len() - 1;
+        while left < right {
+            while left < right {
+                if array[right] <= array[0] {
+                    break;
+                } else {
+                    right -= 1;
+                }
+            }
+            while left < right {
+                if array[left] > array[0] {
+                    break;
+                } else {
+                    left += 1;
+                }
+            }
+            if left < right {
+                array.swap(left, right);
+            }
+        }
+        array.swap(0, left);
+        left + 1_usize
+    }
+    let pivot = partition(array);
+    sort(&mut array[..pivot]);
+    sort(&mut array[pivot..])
 }
 #[cfg(test)]
 mod tests {

@@ -3,12 +3,11 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
 use std::collections::VecDeque;
 
 // Define a graph
 struct Graph {
-    adj: Vec<Vec<usize>>, 
+    adj: Vec<Vec<usize>>,
 }
 
 impl Graph {
@@ -21,16 +20,32 @@ impl Graph {
 
     // Add an edge to the graph
     fn add_edge(&mut self, src: usize, dest: usize) {
-        self.adj[src].push(dest); 
-        self.adj[dest].push(src); 
+        self.adj[src].push(dest);
+        self.adj[dest].push(src);
     }
 
     // Perform a breadth-first search on the graph, return the order of visited nodes
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
-        
-		//TODO
-
         let mut visit_order = vec![];
+        let mut unreached = vec![true; self.adj.len()];
+        let mut to_visit_queue = VecDeque::from([start]);
+        while let Some(node) = to_visit_queue.pop_front() {
+            visit_order.push(node);
+            unreached[node] = false;
+            to_visit_queue.append(
+                &mut self.adj[node]
+                    .iter()
+                    .filter_map(|&dest| {
+                        if unreached[dest] {
+                            unreached[dest] = false;
+                            Some(dest)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect(),
+            )
+        }
         visit_order
     }
 }
@@ -84,4 +99,3 @@ mod tests {
         assert_eq!(visited_order, vec![0]);
     }
 }
-

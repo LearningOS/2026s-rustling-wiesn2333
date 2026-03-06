@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +68,54 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+}
+
+impl<T: PartialOrd> LinkedList<T> {
+    pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
+        if list_a.length == 0 {
+            return list_b;
         }
-	}
+        if list_b.length == 0 {
+            return list_a;
+        }
+
+        let mut start: Option<NonNull<Node<T>>> = None;
+        let mut end: Option<NonNull<Node<T>>> = None;
+
+        while let (Some(node_a), Some(node_b)) = (list_a.start, list_b.start) {
+            let node = if unsafe { node_a.as_ref().val <= node_b.as_ref().val } {
+                list_a.start = unsafe { list_a.start.unwrap().as_ref().next };
+                node_a
+            } else {
+                list_b.start = unsafe { list_b.start.unwrap().as_ref().next };
+                node_b
+            };
+            match end {
+                Some(_) => unsafe {
+                    end.unwrap().as_mut().next = Some(node);
+                    end = end.unwrap().as_ref().next;
+                },
+                None => {
+                    start = Some(node);
+                    end = Some(node);
+                }
+            }
+        }
+        if list_a.start.is_some() {
+            unsafe { end.unwrap().as_mut().next = list_a.start };
+            end = list_a.end;
+        }
+        if list_b.start.is_some() {
+            unsafe { end.unwrap().as_mut().next = list_b.start };
+            end = list_b.end;
+        }
+
+        LinkedList {
+            length: list_a.length + list_b.length,
+            start,
+            end,
+        }
+    }
 }
 
 impl<T> Display for LinkedList<T>
@@ -135,7 +173,7 @@ mod tests {
 		let vec_a = vec![1,3,5,7];
 		let vec_b = vec![2,4,6,8];
 		let target_vec = vec![1,2,3,4,5,6,7,8];
-		
+
 		for i in 0..vec_a.len(){
 			list_a.add(vec_a[i]);
 		}
